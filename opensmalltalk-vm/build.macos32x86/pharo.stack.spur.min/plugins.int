@@ -1,0 +1,39 @@
+# Copied, perhaps edited, from ../src/examplePlugins.int
+INTERNAL_PLUGINS = \
+BitBltPlugin \
+B2DPlugin \
+SqueakFFIPrims \
+FilePlugin \
+HostWindowPlugin \
+SocketPlugin \
+SoundPlugin
+
+# SocketPlugin = in startup list...
+# SqueakFFIPrims = remove if startup list cleaned up ?
+# HostWindowPlugin for ObjectiveC / OsX
+# SoundPlugin = compilation error if removed  / for ObjectiveC / OsX
+
+# LargeIntegers \
+# MiscPrimitivePlugin \P
+# ZipPlugin \
+# SurfacePlugin \
+# IA32ABI \
+# Matrix2x3Plugin \
+# SoundCodecPrims 
+# EventsHandlerPlugin
+# SecurityPlugin \
+# FloatArrayPlugin \
+# ADPCMCodecPlugin \
+# AioPlugin \
+# AsynchFilePlugin \
+# BMPReadWriterPlugin \
+# DSAPrims \
+# DropPlugin \
+# FFTPlugin \
+# GeniePlugin \
+# SoundGenerationPlugin \
+# StarSqueakPlugin \
+# UnixOSProcessPlugin \
+# VMProfileMacSupportPlugin \
+# Klatt 
+
