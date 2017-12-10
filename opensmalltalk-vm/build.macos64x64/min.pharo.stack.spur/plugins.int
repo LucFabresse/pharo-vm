@@ -1,0 +1,32 @@
+# Copied, perhaps edited, from ../src/examplePlugins.int
+INTERNAL_PLUGINS = \
+BitBltPlugin \
+B2DPlugin \
+SqueakFFIPrims \
+FilePlugin \
+HostWindowPlugin \
+SocketPlugin \
+SoundPlugin
+
+# ADPCMCodecPlugin \
+# AioPlugin \
+# AsynchFilePlugin \
+# BMPReadWriterPlugin \
+# DSAPrims \
+# DropPlugin \
+# FFTPlugin \
+# FilePlugin \
+# FloatArrayPlugin \
+# GeniePlugin \
+# IA32ABI \
+# LargeIntegers \
+# Matrix2x3Plugin \
+# MiscPrimitivePlugin \
+# SecurityPlugin \
+# SoundCodecPrims \
+# SoundGenerationPlugin \
+# StarSqueakPlugin \
+# UnixOSProcessPlugin \
+# VMProfileMacSupportPlugin \
+# ZipPlugin \
+# Klatt 
