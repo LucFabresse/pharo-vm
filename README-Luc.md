@@ -47,7 +47,7 @@ a stack+spur pharo VM with the least minimum plugins to still open a [Pharo 7 64
 
 ## Perequisites
 
-	gcc-4.8
+	apt install gcc-4.8
 
 	apt install mesa-common-dev libglu1-mesa-dev freeglut3-dev libfreetype6-dev libssl-dev libuuid1
 
@@ -79,11 +79,24 @@ FREETYPE2_LIBS=`pkg-config --libs freetype2`
 	+# PYLIBPATH=   @PYLIBPATH@
 	+# PYINCLUDES=  @PYINCLUDES@
 
+## pharo.stack.spur
+
+
+
+
 
 # build.linux32x86
 
 ## Perequisites
-
-	# cross compil i386 depuis x64
+	
+assuming we are cross compiling from an x64, we need to install:
+	
 	apt install gcc-4.8-multilib "libx11-6:i386" "libgl1-mesa-glx:i386" "libfontconfig1:i386" "libssl1.0.0:i386" uuid-dev:i386 libuuid1:i386 libx11-dev:i386 libgl1-mesa-dev:i386  
+
+## added pharo.stack.spur
+	
+	
+	cd pharo.stack.spur/build
+	./mvm
+	# result in ../../../products/
 	
