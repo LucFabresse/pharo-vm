@@ -1,3 +1,14 @@
+#
+.travis.yml
+...
+
+
+charge la derniere VMMaker dans la derniere squeak
+./scripts/buildspurtrunkvmmakerimage.sh
+
+
+
+
 # build.macos32x86
 
 ## added pharo.stack.spur.min
@@ -56,7 +67,7 @@ a stack+spur pharo VM with the least minimum plugins to still open a [Pharo 7 64
 	cd opensmalltalk-vm/build.linux64x64/pharo.cog.spur/build/
 	./mvm 
 
-ERROR because
+<!-- ERROR because (not sur this error is still there...)
 
 template ../../../platforms/unix/config/make.cfg.in
 contains FREETYPE2_CFLAGS= @FREETYPE2_CFLAGS@
@@ -77,12 +88,7 @@ FREETYPE2_LIBS=`pkg-config --libs freetype2`
 	-PYLIBPATH=     @PYLIBPATH@
 	-PYINCLUDES=    @PYINCLUDES@
 	+# PYLIBPATH=   @PYLIBPATH@
-	+# PYINCLUDES=  @PYINCLUDES@
-
-## pharo.stack.spur
-
-
-
+	+# PYINCLUDES=  @PYINCLUDES@ -->
 
 
 # build.linux32x86
@@ -99,4 +105,11 @@ assuming we are cross compiling from an x64, we need to install:
 	cd pharo.stack.spur/build
 	./mvm
 	# result in ../../../products/
+
+# build.linux32ARMv6
+
+https://www.acmesystems.it/arm9_toolchain
 	
+	sudo apt install arm-linux-gnueabihf-gcc
+
+
