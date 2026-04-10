@@ -38,7 +38,7 @@ else()
   endif()
 endif()
 
-set(PLUGIN_GENERATED_FILES 
+set(PLUGIN_GENERATED_FILES
     ${PHARO_CURRENT_GENERATED}/plugins/src/FilePlugin/FilePlugin.c
     ${PHARO_CURRENT_GENERATED}/plugins/src/NewFilePlugin/NewFilePlugin.c
     ${PHARO_CURRENT_GENERATED}/plugins/src/SurfacePlugin/SurfacePlugin.c
@@ -58,8 +58,8 @@ if(GENERATE_SOURCES)
     endif()
 
     #Setting platform specific vmmaker virtual machine, with cached download or override
-    if (GENERATE_PHARO_VM) 
-        message("Overriding VM used for code generation")  
+    if (GENERATE_PHARO_VM)
+        message("Overriding VM used for code generation")
         set(VMMAKER_VM ${GENERATE_PHARO_VM})
         # add empty target because is required later when installing vmmaker
 	add_custom_target(vmmaker_vm)
@@ -125,12 +125,13 @@ if(GENERATE_SOURCES)
 
     if(GENERATE_VMMAKER)
         #Bootstrap VMMaker.image from downloaded plain Pharo image
-		
+
         ExternalProject_Add(
             vmmaker
-
-            URL https://files.pharo.org/image/120/Pharo12.0-SNAPSHOT.build.1551.sha.92f3bb989f.arch.64bit.zip
-            URL_HASH SHA256=fd84c9f345d806389ecdad52f63eeb8bad7f983c99c5e010d83cf2d12ca97766
+            # URL https://files.pharo.org/image/120/Pharo12.0-SNAPSHOT.build.1551.sha.92f3bb989f.arch.64bit.zip
+            # URL_HASH SHA256=fd84c9f345d806389ecdad52f63eeb8bad7f983c99c5e010d83cf2d12ca97766
+            URL https://files.pharo.org/image/13/13328.zip
+            URL_HASH SHA256=76b93c7c35e1d6f0bbb18343e2967ddf8017ab93878b6f3fae39839a43976a77
             BUILD_COMMAND ${VMMAKER_VM} --headless ${IMAGE_PATH_TO_USE} --no-default-preferences save VMMaker
 	    COMMAND ${VMMAKER_VM} --headless ${VMMAKER_IMAGE_TO_USE} --no-default-preferences --save --quit "${CMAKE_CURRENT_SOURCE_DIR_OUT}/scripts/installVMMaker.st" "${CMAKE_CURRENT_SOURCE_DIR_OUT}" "${ICEBERG_DEFAULT_REMOTE}"
             UPDATE_COMMAND      ""
