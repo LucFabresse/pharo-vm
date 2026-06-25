@@ -864,11 +864,6 @@ StackToRegisterMappingCogit >> bytecodeFixupClass [
 	^CogSSBytecodeFixup
 ]
 
-{ #category : 'trampolines' }
-StackToRegisterMappingCogit >> cPICMissTrampolineFor: numArgs [
-	^picMissTrampolines at: (numArgs min: self numRegArgs + 1)
-]
-
 { #category : 'debugging' }
 StackToRegisterMappingCogit >> callCogCodePopReceiverArg0Regs [
 	"This is a static version of ceCallCogCodePopReceiverArg0Regs
@@ -2056,7 +2051,7 @@ StackToRegisterMappingCogit >> genPICMissTrampolineFor: numArgs [
 	self zeroOpcodeIndex.
 	"N.B. a closed PIC jumps to the miss routine, not calls it, so there is only one retpc on the stack."
 	backEnd genPushRegisterArgsForNumArgs: numArgs scratchReg: SendNumArgsReg.
-	self genTrampolineFor: #ceCPICMiss:receiver:
+	self genTrampolineFor: #cePICMiss:receiver:
 		called: (self trampolineName: 'cePICMiss' numRegArgs: numArgs)
 		numArgs: 2
 		arg: ClassReg
@@ -2128,17 +2123,33 @@ StackToRegisterMappingCogit >> genPushActiveContextBytecode [
 
 { #category : 'bytecode generators' }
 StackToRegisterMappingCogit >> genPushActiveProcessBytecode [
+	"Get a free register to push thisProcess to the stack.
+	If we cannot get a register, abort compilation"
 
-	self MoveAw: objectMemory specialObjectsArrayAddress R: TempReg.
-	"Fetch the special objects array address, read the scheduler association, its value, and the active process from it"
-	self AddCq: SchedulerAssociation << 3 R: TempReg.
-	self MoveMw: 1 * objectMemory wordSize r: TempReg R: TempReg.
-	self AddCq: ValueIndex << objectMemory shiftForWord R: TempReg.
-	self MoveMw: 1 * objectMemory wordSize r: TempReg R: TempReg.
+	| freeReg |
+	freeReg := self allocateRegNotConflictingWith: 0.
+	freeReg = NoReg ifTrue: [ ^ self unknownBytecode ].
+
+	"The following generates code equivalent to:
+	
+		schedulerAssociation := smalltalkObjectArray[schedulerIndex].
+		scheduler := schedulerAssociation[valueIndex].
+		activeProcess := scheduler[activeProcessIndex].
+		push(activeProcess)
+	"
+	self MoveAw: objectMemory specialObjectsArrayAddress R: freeReg.
+	objectRepresentation
+		genLoadSlot: SchedulerAssociation
+		sourceReg: freeReg
+		destReg: freeReg.
+	objectRepresentation
+		genLoadSlot: ValueIndex
+		sourceReg: freeReg
+		destReg: freeReg.
 	self
-		AddCq: ActiveProcessIndex << objectMemory shiftForWord
-		R: TempReg.
-	self ssPushBase: TempReg offset: 1 * objectMemory wordSize.
+		ssPushBase: freeReg
+		offset:
+		(objectRepresentation slotOffsetOfInstVarIndex: ActiveProcessIndex).
 	^ 0
 ]
 
@@ -3706,6 +3717,11 @@ StackToRegisterMappingCogit >> picAbortTrampolines [
 	^ picAbortTrampolines
 ]
 
+{ #category : 'trampolines' }
+StackToRegisterMappingCogit >> picMissTrampolineFor: numArgs [
+	^picMissTrampolines at: (numArgs min: self numRegArgs + 1)
+]
+
 { #category : 'accessing' }
 StackToRegisterMappingCogit >> picMissTrampolines [
 	
@@ -3715,15 +3731,16 @@ StackToRegisterMappingCogit >> picMissTrampolines [
 ]
 
 { #category : 'method introspection' }
-StackToRegisterMappingCogit >> populate: tuple withPICInfoFor: cPIC firstCacheTag: firstCacheTag [
-	"Populate tuple (which must be large enough) with the ClosedPIC's target method class pairs.
-	 The first entry in tuple contains the bytecode pc for the send, so skip the tuple's first field."
-	<var: #cPIC type: #'CogMethod *'>
+StackToRegisterMappingCogit >> populate: tuple withPICInfoFor: aPIC firstCacheTag: firstCacheTag [
+	"Populate tuple (which must be large enough) with the PIC's target method class pairs.
+	 The first entry in tuple contains the bytecode pc for the send, so skip the tuple's first field.
+	"
+	<var: #aPIC type: #'CogMethod *'>
 	| picCaseMachineCodePC cacheTag classOop entryPoint targetMethod value |
 	<var: #targetMethod type: #'CogMethod *'>
 
-	1 to: cPIC cPICNumCases do: [:i|
-		picCaseMachineCodePC := self addressOfEndOfCase: i inCPIC: cPIC.
+	1 to: aPIC picNumCases do: [:i|
+		picCaseMachineCodePC := self addressOfEndOfCase: i inPIC: aPIC.
 		cacheTag := i = 1
 						ifTrue: [firstCacheTag]
 						ifFalse: [backEnd literal32BeforeFollowingAddress: picCaseMachineCodePC - backEnd jumpLongConditionalByteSize].
@@ -3734,7 +3751,7 @@ StackToRegisterMappingCogit >> populate: tuple withPICInfoFor: cPIC firstCacheTa
 						ifTrue: [backEnd jumpLongTargetBeforeFollowingAddress: picCaseMachineCodePC]
 						ifFalse: [backEnd jumpLongConditionalTargetBeforeFollowingAddress: picCaseMachineCodePC].
 		"Find target from jump.  A jump to the MNU entry-point should collect #doesNotUnderstand:"
-		(cPIC containsAddress: entryPoint)
+		(aPIC containsAddress: entryPoint)
 			ifTrue: [ value := objectMemory splObj: SelectorDoesNotUnderstand ]
 			ifFalse: [
 				targetMethod := self cCoerceSimple: entryPoint - cmNoCheckEntryOffset to: #'CogMethod *'.
@@ -3958,7 +3975,7 @@ StackToRegisterMappingCogit >> profilingDataForSendTo: cogCodeSendTarget methodC
 					eeInstantiateClassIndex: ClassArrayCompactIndex
 					format: objectMemory arrayFormat
 					numSlots: (cogCodeSendTarget cmType = CMPolymorphicIC
-								ifTrue: [2 * cogCodeSendTarget cPICNumCases + 1]
+								ifTrue: [2 * cogCodeSendTarget picNumCases + 1]
 								ifFalse: [3]).
 	tuple = 0 ifTrue:
 		[^0].

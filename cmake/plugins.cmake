@@ -17,7 +17,7 @@ target_link_libraries(FileAttributesPlugin PRIVATE FilePlugin)
 
 # UUIDPlugin
 
-if(NOT OPENBSD)
+if(FEATURE_PLUGIN_UUID AND NOT OPENBSD)
     message(STATUS "Adding plugin: UUIDPlugin")
 
     file(GLOB UUIDPlugin_SOURCES
@@ -58,15 +58,22 @@ if(OSX)
 	target_link_libraries(LocalePlugin PRIVATE "-framework CoreFoundation")
 endif()
 
-add_vm_plugin(SqueakSSL FALSE FALSE)
-if(OSX)
-    target_link_libraries(SqueakSSL PRIVATE "-framework CoreFoundation")
-    target_link_libraries(SqueakSSL PRIVATE "-framework Security")
-elseif(WIN)
-    target_link_libraries(SqueakSSL PRIVATE Crypt32 Secur32)
-else()
-    find_package(OpenSSL REQUIRED)
-    target_link_libraries(SqueakSSL PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+if(FEATURE_PLUGIN_SSL)
+    add_vm_plugin(SqueakSSL FALSE FALSE)
+    if(OSX)
+        target_link_libraries(SqueakSSL PRIVATE "-framework CoreFoundation")
+        target_link_libraries(SqueakSSL PRIVATE "-framework Security")
+    elseif(WIN)
+        target_link_libraries(SqueakSSL PRIVATE Crypt32 Secur32)
+    else()
+        find_package(OpenSSL REQUIRED)
+        target_link_libraries(SqueakSSL PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+        # The VM builds on an ubuntu with openssl 1.0, thus the ssl plugin links to it.
+        # Ship ssl 1.0 with the VM, so the ssl plugin loads
+        if(BUILD_BUNDLE)
+            add_third_party_dependency("openssl-1.0.2q")
+        endif()
+    endif()
 endif()
 
 # UnixOSProcessPlugin
