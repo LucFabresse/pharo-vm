@@ -71,7 +71,7 @@ cogit uint32AtPointer: callSiteReturnAddress - 8 put: badInstruction.
     callTarget := cogit pcRelativeAddressAt: 16r320040000.
     
     cogit 
-        rewriteStaticInlineCacheAt: callSiteReturnAddress
+        rewriteInlineCacheAt: callSiteReturnAddress
         tag: cacheTag
         target: callTarget.
         

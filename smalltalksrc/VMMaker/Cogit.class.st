@@ -8851,7 +8851,7 @@ Cogit >> linkStaticSendAt: callSiteReturnAddress in: sendingMethod to: targetMet
 	self
 		enableCodeZoneWriteDuring: [
 			extent := backEnd 
-				          rewriteStaticInlineCacheAt: callSiteReturnAddress
+				          rewriteInlineCacheAt: callSiteReturnAddress
 				          tag: inlineCacheTag
 				          target: address ]
 		flushingCacheWith: [
